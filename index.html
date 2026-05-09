@@ -77,33 +77,33 @@
                         <div class="icon-wrap blue"><span class="material-icons-outlined">build</span></div>
                         <div class="metric-info">
                             <p>DevOps Tools</p>
-                            <h2 class="counter" data-target="18">0</h2>
+                            <h2 class="counter" id="metric-tools" data-target="0">0</h2>
                         </div>
-                        <div class="trend up"><span class="material-icons-outlined">trending_up</span> +2 this week</div>
+                        <div class="trend up"><span class="material-icons-outlined">trending_up</span> Extracting from data...</div>
                     </div>
                     <div class="metric-card">
                         <div class="icon-wrap purple"><span class="material-icons-outlined">linear_scale</span></div>
                         <div class="metric-info">
                             <p>Pipeline Stages</p>
-                            <h2 class="counter" data-target="8">0</h2>
+                            <h2 class="counter" id="metric-stages" data-target="0">0</h2>
                         </div>
-                        <div class="trend up"><span class="material-icons-outlined">trending_up</span> Fully learned</div>
+                        <div class="trend up"><span class="material-icons-outlined">trending_up</span> Total pipeline steps</div>
                     </div>
                     <div class="metric-card">
                         <div class="icon-wrap green"><span class="material-icons-outlined">school</span></div>
                         <div class="metric-info">
-                            <p>Concepts Mastered</p>
-                            <h2 class="counter" data-target="65">0</h2><span>%</span>
+                            <p>Roadmap Progress</p>
+                            <h2 class="counter" id="metric-mastered" data-target="0">0</h2><span>%</span>
                         </div>
-                        <div class="trend up"><span class="material-icons-outlined">trending_up</span> Keep going!</div>
+                        <div class="trend up"><span class="material-icons-outlined">trending_up</span> Keep learning!</div>
                     </div>
                     <div class="metric-card">
                         <div class="icon-wrap orange"><span class="material-icons-outlined">science</span></div>
                         <div class="metric-info">
-                            <p>Labs Completed</p>
-                            <h2><span class="counter" data-target="12">0</span> / 20</h2>
+                            <p>Docker Commands</p>
+                            <h2><span class="counter" id="metric-labs" data-target="0">0</span></h2>
                         </div>
-                        <div class="trend up"><span class="material-icons-outlined">trending_up</span> 60% done</div>
+                        <div class="trend up"><span class="material-icons-outlined">trending_up</span> Commands Reference</div>
                     </div>
                 </div>
 
@@ -132,11 +132,22 @@
             <section id="cicd" class="page-section">
                 <div class="card">
                     <div class="card-header-flex">
-                        <h3>Interactive Pipeline Visualizer</h3>
+                        <h3>Interactive Pipeline Simulator</h3>
                         <button id="runPipelineBtn" class="btn primary"><span class="material-icons-outlined">play_arrow</span> Run Pipeline</button>
                     </div>
                     <div class="pipeline-visualizer" id="pipelineVisualizer">
                         <!-- Nodes generated via JS -->
+                    </div>
+                    
+                    <!-- Live Execution Terminal -->
+                    <div class="pipeline-logs-wrapper mt-3" style="margin-top: 20px; background: #000; border-radius: 8px; overflow: hidden; display: none;" id="pipelineLogContainer">
+                        <div style="background: #333; padding: 5px 15px; color: #fff; font-size: 0.8rem; display: flex; justify-content: space-between;">
+                            <span>Pipeline Execution Logs</span>
+                            <span id="pipelineStatusSpan" style="color: #bbb;">Waiting...</span>
+                        </div>
+                        <div id="pipelineLiveLogs" style="height: 150px; overflow-y: auto; padding: 15px; font-family: monospace; font-size: 0.85rem; color: #ccc;">
+                            <!-- Logs injected here -->
+                        </div>
                     </div>
                 </div>
                 <div id="pipelineDetailPanel" class="card detail-panel hidden">
@@ -152,17 +163,9 @@
                         <table class="styled-table">
                             <tr><th>Concept</th><th>Definition</th><th>Goal</th></tr>
                             <tr><td>Continuous Integration (CI)</td><td>Merging code frequently</td><td>Find bugs early</td></tr>
-                            <tr><td>Continuous Delivery (CD)</td><td>Ready to deploy anytime</td><td>Automate release process</td></tr>
+                            <tr><td>Continuous Delivery (CD)</td><td>Ready to deploy anytime</td><td>Automate releases</td></tr>
                             <tr><td>Continuous Deployment (CD)</td><td>Auto-deploy to prod</td><td>Fast user feedback</td></tr>
                         </table>
-                    </div>
-                    <div class="card">
-                        <h3>Sample Configurations</h3>
-                        <div class="code-tabs">
-                            <button class="tab-btn active" data-tab="jenkinsfile">Jenkinsfile</button>
-                            <button class="tab-btn" data-tab="ghactions">GitHub Actions</button>
-                        </div>
-                        <pre><code id="sampleConfigCode" class="language-yaml"></code></pre>
                     </div>
                 </div>
             </section>
@@ -182,11 +185,11 @@
                 
                 <div class="card">
                     <div class="card-header-flex">
-                        <h3>Container Simulator</h3>
-                        <button id="createContainerBtn" class="btn primary">Create Container</button>
+                        <h3>Interactive Container Engine</h3>
+                        <button id="createContainerBtn" class="btn primary">Start Container (docker run)</button>
                     </div>
                     <div class="container-grid" id="containerGrid">
-                        <!-- Containers JS injected -->
+                        <!-- Containers JS injected with live metrics -->
                     </div>
                 </div>
                 <div class="bento-grid">
@@ -207,30 +210,37 @@
             <!-- Kubernetes Section -->
             <section id="k8s" class="page-section">
                 <div class="card">
-                    <h3>Kubernetes Architecture</h3>
-                    <canvas id="k8sCanvas" height="200"></canvas>
+                    <div class="card-header-flex">
+                        <div>
+                            <h3 style="margin-bottom: 0px;">Live Kubernetes Cluster Simulator</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">Watch the Horizontal Pod Autoscaler dispatch pods across worker nodes.</p>
+                        </div>
+                        <div>
+                            <button class="btn primary" id="k8sScaleUpBtn">+ Scale Up</button>
+                            <button class="btn secondary" id="k8sScaleDownBtn">- Scale Down</button>
+                            <button class="btn secondary" id="k8sKillNodeBtn" style="color: var(--red);">Kill Random Node</button>
+                        </div>
+                    </div>
+                    
+                    <!-- K8s Visual Nodes -->
+                    <div class="k8s-cluster-visual" style="display: flex; gap: 20px; padding: 20px; background: #f8fafc; border-radius: 8px; min-height: 250px;">
+                        <!-- JS injects Nodes here -->
+                    </div>
                 </div>
+
                 <div class="bento-grid">
                     <div class="card">
-                        <h3>Pod Lifecycle</h3>
-                        <div class="lifecycle-anim" id="podLifecycle">
-                            <span class="state pending">Pending</span> →
-                            <span class="state creating">ContainerCreating</span> →
-                            <span class="state running">Running</span>
-                        </div>
+                        <h3>Kubernetes Architecture</h3>
+                        <canvas id="k8sCanvas" height="200"></canvas>
                     </div>
                     <div class="card">
-                        <h3>Cluster Simulator</h3>
-                        <div class="k8s-nodes" id="k8sNodes">
-                            <!-- Nodes JS injected -->
+                        <h3>Kubernetes Resources</h3>
+                        <div class="resource-grid" id="k8sResources" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="c-card"><strong>Pod</strong><p>Smallest deployable unit</p></div>
+                            <div class="c-card"><strong>Deployment</strong><p>Manages replicas</p></div>
+                            <div class="c-card"><strong>Service</strong><p>Network exposure</p></div>
+                            <div class="c-card"><strong>Ingress</strong><p>External routing</p></div>
                         </div>
-                        <button class="btn secondary" id="scaleDeploymentBtn">Scale Deployment (+1)</button>
-                    </div>
-                </div>
-                <div class="card">
-                    <h3>Kubernetes Resources</h3>
-                    <div class="resource-grid" id="k8sResources">
-                        <!-- Cards JS injected -->
                     </div>
                 </div>
             </section>
