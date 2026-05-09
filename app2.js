@@ -1,0 +1,4 @@
+/* 
+  Initial structure complete 
+  Added app.js logic to support all UI behaviors.
+*/
