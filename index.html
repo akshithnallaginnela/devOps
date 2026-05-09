@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOpsFlow — Interactive DevOps Learning</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Material Icons Outlined -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Welcome Modal -->
+    <div id="welcomeModal" class="modal-overlay">
+        <div class="modal-content card">
+            <h2>🎉 Welcome to DevOpsFlow!</h2>
+            <p>This is your visual, interactive guide to learning DevOps from absolute scratch.</p>
+            <ul style="margin: 15px 0 20px 20px; color: var(--text-muted); line-height: 1.6;">
+                <li><strong>Follow the Roadmap:</strong> Start at the bottom of the sidebar to see your learning path.</li>
+                <li><strong>Interact with Visuals:</strong> Click on pipeline stages, spin up fake containers, and explore architectures.</li>
+                <li><strong>Practice Safely:</strong> Use the Hands-on Labs terminal to type your very first Linux commands.</li>
+            </ul>
+            <p style="margin-bottom: 20px; font-size: 0.9rem;">Once you understand the 'What' and 'Why' here, you'll be ready to build real systems!</p>
+            <button id="closeModalBtn" class="btn primary" style="width: 100%; justify-content: center;">Let's Go!</button>
+        </div>
+    </div>
+
+    <canvas id="particleCanvas"></canvas>
+    
+    <nav class="sidebar" id="sidebar">
+        <div class="logo">
+            <span class="material-icons-outlined">all_inclusive</span>
+            <h2>DevOpsFlow</h2>
+        </div>
+        <ul class="nav-links">
+            <li class="active" data-target="dashboard"><span class="material-icons-outlined">dashboard</span> Dashboard</li>
+            <li data-target="cicd"><span class="material-icons-outlined">sync</span> CI/CD Pipeline</li>
+            <li data-target="docker"><span class="material-icons-outlined">inventory_2</span> Containers & Docker</li>
+            <li data-target="k8s"><span class="material-icons-outlined">grid_view</span> Kubernetes (K8s)</li>
+            <li data-target="iac"><span class="material-icons-outlined">architecture</span> Infrastructure as Code</li>
+            <li data-target="monitoring"><span class="material-icons-outlined">monitoring</span> Monitoring</li>
+            <li data-target="git"><span class="material-icons-outlined">source</span> Version Control</li>
+            <li data-target="labs"><span class="material-icons-outlined">terminal</span> Hands-on Labs</li>
+            <li data-target="roadmap"><span class="material-icons-outlined">map</span> Learning Roadmap</li>
+        </ul>
+        <div class="user-profile">
+            <div class="avatar"><span class="material-icons-outlined">person</span></div>
+            <div class="user-info">
+                <h4>Student User</h4>
+                <p>Beginner Track</p>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="hamburger" id="hamburger"><span class="material-icons-outlined">menu</span></div>
+            <div class="page-titles">
+                <h1 id="page-title">Dashboard</h1>
+                <p id="page-subtitle">Your DevOps learning journey overview</p>
+            </div>
+            <div class="search-box">
+                <span class="material-icons-outlined">search</span>
+                <input type="text" placeholder="Search concepts...">
+            </div>
+        </header>
+
+        <!-- Sections container -->
+        <div class="sections-container">
+            
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="page-section active">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="icon-wrap blue"><span class="material-icons-outlined">build</span></div>
+                        <div class="metric-info">
+                            <p>DevOps Tools</p>
+                            <h2 class="counter" data-target="18">0</h2>
+                        </div>
+                        <div class="trend up"><span class="material-icons-outlined">trending_up</span> +2 this week</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="icon-wrap purple"><span class="material-icons-outlined">linear_scale</span></div>
+                        <div class="metric-info">
+                            <p>Pipeline Stages</p>
+                            <h2 class="counter" data-target="8">0</h2>
+                        </div>
+                        <div class="trend up"><span class="material-icons-outlined">trending_up</span> Fully learned</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="icon-wrap green"><span class="material-icons-outlined">school</span></div>
+                        <div class="metric-info">
+                            <p>Concepts Mastered</p>
+                            <h2 class="counter" data-target="65">0</h2><span>%</span>
+                        </div>
+                        <div class="trend up"><span class="material-icons-outlined">trending_up</span> Keep going!</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="icon-wrap orange"><span class="material-icons-outlined">science</span></div>
+                        <div class="metric-info">
+                            <p>Labs Completed</p>
+                            <h2><span class="counter" data-target="12">0</span> / 20</h2>
+                        </div>
+                        <div class="trend up"><span class="material-icons-outlined">trending_up</span> 60% done</div>
+                    </div>
+                </div>
+
+                <div class="bento-grid">
+                    <div class="card chart-card">
+                        <h3>Learning Progress (8 Weeks)</h3>
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                    <div class="card chart-card">
+                        <h3>Skill Distribution</h3>
+                        <canvas id="skillRadar"></canvas>
+                    </div>
+                </div>
+
+                <div class="card activity-card">
+                    <h3>Recent Activity</h3>
+                    <ul class="activity-feed">
+                        <li><span class="dot blue"></span><p>Completed Docker Basics <span class="time">2h ago</span></p></li>
+                        <li><span class="dot green"></span><p>Passed CI/CD Quiz <span class="time">1d ago</span></p></li>
+                        <li><span class="dot purple"></span><p>Built first Jenkinsfile <span class="time">2d ago</span></p></li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- CI/CD Section -->
+            <section id="cicd" class="page-section">
+                <div class="card">
+                    <div class="card-header-flex">
+                        <h3>Interactive Pipeline Visualizer</h3>
+                        <button id="runPipelineBtn" class="btn primary"><span class="material-icons-outlined">play_arrow</span> Run Pipeline</button>
+                    </div>
+                    <div class="pipeline-visualizer" id="pipelineVisualizer">
+                        <!-- Nodes generated via JS -->
+                    </div>
+                </div>
+                <div id="pipelineDetailPanel" class="card detail-panel hidden">
+                    <h3 id="stageTitle">Stage Title</h3>
+                    <p id="stageDesc">Description goes here</p>
+                    <div class="stage-tools" id="stageTools"></div>
+                    <pre><code id="stageCode"></code></pre>
+                    <ul id="stageBestPractices" class="best-practices"></ul>
+                </div>
+                <div class="bento-grid">
+                    <div class="card">
+                        <h3>CI vs CD vs CD</h3>
+                        <table class="styled-table">
+                            <tr><th>Concept</th><th>Definition</th><th>Goal</th></tr>
+                            <tr><td>Continuous Integration (CI)</td><td>Merging code frequently</td><td>Find bugs early</td></tr>
+                            <tr><td>Continuous Delivery (CD)</td><td>Ready to deploy anytime</td><td>Automate release process</td></tr>
+                            <tr><td>Continuous Deployment (CD)</td><td>Auto-deploy to prod</td><td>Fast user feedback</td></tr>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <h3>Sample Configurations</h3>
+                        <div class="code-tabs">
+                            <button class="tab-btn active" data-tab="jenkinsfile">Jenkinsfile</button>
+                            <button class="tab-btn" data-tab="ghactions">GitHub Actions</button>
+                        </div>
+                        <pre><code id="sampleConfigCode" class="language-yaml"></code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Docker Section -->
+            <section id="docker" class="page-section">
+                <div class="card">
+                    <h3>Docker Architecture</h3>
+                    <div class="docker-arch-diagram">
+                        <div class="d-node">Client<br><small>docker build, pull, run</small></div>
+                        <div class="d-arrow">→</div>
+                        <div class="d-node focus">Docker Host<br><small>Daemon</small></div>
+                        <div class="d-arrow">↔</div>
+                        <div class="d-node">Registry<br><small>Docker Hub</small></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header-flex">
+                        <h3>Container Simulator</h3>
+                        <button id="createContainerBtn" class="btn primary">Create Container</button>
+                    </div>
+                    <div class="container-grid" id="containerGrid">
+                        <!-- Containers JS injected -->
+                    </div>
+                </div>
+                <div class="bento-grid">
+                    <div class="card">
+                        <h3>Commands Reference</h3>
+                        <ul class="cmd-list" id="dockerCmdList">
+                            <!-- JS Injected -->
+                        </ul>
+                        <div class="cmd-detail" id="dockerCmdDetail">Select a command</div>
+                    </div>
+                    <div class="card">
+                        <h3>Dockerfile Builder</h3>
+                        <pre><code id="dockerfileCode"></code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Kubernetes Section -->
+            <section id="k8s" class="page-section">
+                <div class="card">
+                    <h3>Kubernetes Architecture</h3>
+                    <canvas id="k8sCanvas" height="200"></canvas>
+                </div>
+                <div class="bento-grid">
+                    <div class="card">
+                        <h3>Pod Lifecycle</h3>
+                        <div class="lifecycle-anim" id="podLifecycle">
+                            <span class="state pending">Pending</span> →
+                            <span class="state creating">ContainerCreating</span> →
+                            <span class="state running">Running</span>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Cluster Simulator</h3>
+                        <div class="k8s-nodes" id="k8sNodes">
+                            <!-- Nodes JS injected -->
+                        </div>
+                        <button class="btn secondary" id="scaleDeploymentBtn">Scale Deployment (+1)</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Kubernetes Resources</h3>
+                    <div class="resource-grid" id="k8sResources">
+                        <!-- Cards JS injected -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Infrastructure as Code Section -->
+            <section id="iac" class="page-section">
+                <div class="card">
+                    <h3>IaC Tools Comparison</h3>
+                    <div class="tool-cards" id="iacTools">
+                        <!-- JS injected -->
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Terraform Workflow</h3>
+                    <div class="tf-workflow">
+                        <div class="step">Write (.tf)</div> →
+                        <div class="step">Init</div> →
+                        <div class="step">Plan</div> →
+                        <div class="step">Apply</div> →
+                        <div class="step">Destroy</div>
+                    </div>
+                </div>
+                <div class="bento-grid">
+                    <div class="card">
+                        <h3>Sample Terraform Config</h3>
+                        <pre><code id="tfCode"></code></pre>
+                    </div>
+                    <div class="card">
+                        <h3>IaC Benefits</h3>
+                        <div class="benefit-stats">
+                            <div class="stat"><label>Deployment Time (hours to mins)</label><div class="bar"><div class="fill" style="width: 5%;"></div></div></div>
+                            <div class="stat"><label>Error Rate (25% to 2%)</label><div class="bar"><div class="fill" style="width: 8%;"></div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Monitoring Section -->
+            <section id="monitoring" class="page-section">
+                <div class="card">
+                    <h3>Real-time Metrics Dashboard</h3>
+                    <div class="metrics-dashboard">
+                        <div class="chart-box"><canvas id="cpuChart"></canvas><p>CPU Usage</p></div>
+                        <div class="chart-box"><canvas id="memChart"></canvas><p>Memory Usage</p></div>
+                        <div class="chart-box"><canvas id="reqChart"></canvas><p>Request Rate</p></div>
+                        <div class="chart-box"><canvas id="errGauge"></canvas><p>Error Rate</p></div>
+                    </div>
+                </div>
+                <div class="bento-grid">
+                    <div class="card term-card">
+                        <div class="card-header-flex">
+                            <h3>Live Log Stream</h3>
+                            <button id="toggleLogsBtn" class="btn sm">Pause</button>
+                        </div>
+                        <div class="terminal-logs" id="logStream"></div>
+                    </div>
+                    <div class="card">
+                        <h3>Observability Pillars</h3>
+                        <ul class="pillars">
+                            <li><span class="material-icons-outlined blue">insights</span> <strong>Metrics:</strong> Numeric representations over time.</li>
+                            <li><span class="material-icons-outlined green">receipt_long</span> <strong>Logs:</strong> Immutable records of discrete events.</li>
+                            <li><span class="material-icons-outlined purple">account_tree</span> <strong>Traces:</strong> End-to-end request tracking.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Git Section -->
+            <section id="git" class="page-section">
+                <div class="card">
+                    <h3>Git Workflow Visualizer</h3>
+                    <canvas id="gitCanvas" height="200"></canvas>
+                </div>
+                <div class="bento-grid">
+                    <div class="card">
+                        <h3>Interactive Commands</h3>
+                        <div class="git-cmds" id="gitCmds"></div>
+                        <div class="git-detail" id="gitCmdDetail">Select a command</div>
+                    </div>
+                    <div class="card">
+                        <h3>Branching Strategies</h3>
+                        <table class="styled-table">
+                            <tr><th>Strategy</th><th>Pros</th><th>Cons</th></tr>
+                            <tr><td>GitFlow</td><td>Strict, distinct releases</td><td>Complex, slow merges</td></tr>
+                            <tr><td>Trunk-Based</td><td>Continuous integration</td><td>Requires strong testing</td></tr>
+                            <tr><td>GitHub Flow</td><td>Simple, feature-branch based</td><td>Less environment control</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Labs Section -->
+            <section id="labs" class="page-section">
+                <div class="card term-card" style="height: 500px; display: flex; flex-direction: column;">
+                    <div class="card-header-flex">
+                        <h3>Interactive Linux Terminal Sandbox</h3>
+                        <div style="color: var(--green); font-size: 0.9rem;">Milestone 1: Linux Basics</div>
+                    </div>
+                    <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 10px;">Try commands: <code>pwd</code>, <code>ls</code>, <code>mkdir folder</code>, <code>cd folder</code>, <code>echo text > file.txt</code>, <code>cat file.txt</code>, <code>clear</code></p>
+                    <div id="interactiveTerminal" style="flex: 1; overflow-y: auto; background: #000; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; cursor: text;" onclick="document.getElementById('termInput').focus()">
+                        <div id="termOutput"></div>
+                        <div style="display: flex; margin-top: 5px;">
+                            <span id="termPrompt" style="color: #22c55e; margin-right: 8px; white-space: nowrap;">student@devopsflow:~$</span>
+                            <input type="text" id="termInput" autocomplete="off" spellcheck="false" style="background: transparent; border: none; color: #fff; font-family: monospace; font-size: 0.9rem; flex: 1; outline: none;">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Roadmap Section -->
+            <section id="roadmap" class="page-section">
+                <div class="card">
+                    <div class="card-header-flex">
+                        <h3>Your Learning Path</h3>
+                        <div class="overall-progress">
+                            <span id="roadmapProgressText">0% Complete</span>
+                            <div class="bar"><div class="fill green" id="roadmapProgressBar" style="width: 0%;"></div></div>
+                        </div>
+                    </div>
+                    <div class="timeline" id="roadmapTimeline">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="data.js"></script>
+    <script src="charts.js"></script>
+    <script src="app.js"></script>
+    <script src="terminal.js"></script>
+</body>
+</html>
