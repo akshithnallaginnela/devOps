@@ -8,9 +8,91 @@ document.addEventListener('DOMContentLoaded', () => {
     renderRoadmap();
     initCharts();
     initSimulators();
+    initCodeSnippets();
     initSyntaxHighlight();
     initWelcomeModal();
 });
+
+function initCodeSnippets() {
+    const tfCode = document.getElementById('tfCode');
+    if (tfCode) {
+        tfCode.innerText = `# Define the cloud provider (AWS)
+provider "aws" {
+  region = "us-east-1"
+}
+
+# Create a Virtual Private Cloud (VPC)
+resource "aws_vpc" "main_vpc" {
+  cidr_block = "10.0.0.0/16"
+  
+  tags = {
+    Name = "Production-VPC"
+  }
+}
+
+# Provision an EC2 instance (Virtual Server)
+resource "aws_instance" "web_server" {
+  ami           = "ami-0c55b159cbfafe1f0" # Ubuntu base image
+  instance_type = "t2.micro"              # 1 CPU, 1GB RAM
+  subnet_id     = aws_vpc.main_vpc.id
+
+  tags = {
+    Name = "Frontend-WebServer"
+  }
+}`;
+    }
+
+    const dockerCode = document.getElementById('dockerfileCode');
+    if (dockerCode) {
+        dockerCode.innerText = `# Stage 1: Build the Node.js application
+FROM node:18-alpine AS builder
+WORKDIR /app
+
+# Install dependencies (leverage cache)
+COPY package*.json ./
+RUN npm ci
+
+# Copy source code and build
+COPY . .
+RUN npm run build
+
+# Stage 2: Serve the app using Nginx
+FROM nginx:alpine
+# Copy built assets from builder stage
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Expose port 80 to the outside world
+EXPOSE 80
+
+# Start Nginx server
+CMD ["nginx", "-g", "daemon off;"]`;
+    }
+
+    const sampleConfig = document.getElementById('sampleConfigCode');
+    if (sampleConfig) {
+        sampleConfig.innerText = `pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                sh 'npm install'
+                sh 'npm run build'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'npm test'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'kubectl apply -f deployment.yaml'
+            }
+        }
+    }
+}`;
+    }
+}
 
 function initWelcomeModal() {
     const modal = document.getElementById('welcomeModal');
