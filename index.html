@@ -63,7 +63,8 @@
             </div>
             <div class="search-box">
                 <span class="material-icons-outlined">search</span>
-                <input type="text" placeholder="Search concepts...">
+                <input type="text" id="conceptSearch" list="conceptSuggestions" placeholder="Search concepts...">
+                <datalist id="conceptSuggestions"></datalist>
             </div>
         </header>
 
@@ -125,6 +126,22 @@
                         <li><span class="dot green"></span><p>Passed CI/CD Quiz <span class="time">1d ago</span></p></li>
                         <li><span class="dot purple"></span><p>Built first Jenkinsfile <span class="time">2d ago</span></p></li>
                     </ul>
+                </div>
+
+                <div class="bento-grid">
+                    <div class="card">
+                        <h3>Adaptive Learning Coach</h3>
+                        <div class="coach-controls">
+                            <label for="trackSelect">Choose your track</label>
+                            <select id="trackSelect"></select>
+                        </div>
+                        <div class="coach-mission" id="liveMission"></div>
+                        <ul class="coach-tips" id="coachTips"></ul>
+                    </div>
+                    <div class="card">
+                        <h3>Hands-on Challenges</h3>
+                        <div id="challengeList" class="challenge-list"></div>
+                    </div>
                 </div>
             </section>
 
@@ -339,6 +356,8 @@
                         <h3>Interactive Linux Terminal Sandbox</h3>
                         <div style="color: var(--green); font-size: 0.9rem;">Milestone 1: Linux Basics</div>
                     </div>
+                    <div class="lab-objective" id="terminalObjective">Objective: Select a challenge from Dashboard to begin.</div>
+                    <div class="lab-feedback" id="terminalFeedback"></div>
                     <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 10px;">Try commands: <code>pwd</code>, <code>ls</code>, <code>mkdir folder</code>, <code>cd folder</code>, <code>echo text > file.txt</code>, <code>cat file.txt</code>, <code>clear</code></p>
                     <div id="interactiveTerminal" style="flex: 1; overflow-y: auto; background: #000; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; cursor: text;" onclick="document.getElementById('termInput').focus()">
                         <div id="termOutput"></div>
