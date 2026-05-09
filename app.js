@@ -143,7 +143,11 @@ function animateCounters() {
 function renderPipeline() {
     const vis = document.getElementById('pipelineVisualizer');
     const panel = document.getElementById('pipelineDetailPanel');
+    const logContainer = document.getElementById('pipelineLogContainer');
+    const logs = document.getElementById('pipelineLiveLogs');
+    const statusSpan = document.getElementById('pipelineStatusSpan');
     
+    vis.innerHTML = '';
     DevOpsData.pipelineStages.forEach((stage, i) => {
         const div = document.createElement('div');
         div.className = 'pipe-stage';
@@ -173,23 +177,52 @@ function renderPipeline() {
         }
     });
 
+    const mockLogsData = {
+        'code': ['Fetching latest commits from remote...', 'Checking branch protection rules...', 'Checked out to commit 9f2a4b8'],
+        'build': ['Running "npm ci"...', 'Building production bundle...', 'Creating Docker image...'],
+        'test': ['Running Jest test suites...', 'Test suite 1 passed (12ms)', 'Test suite 2 passed (8ms)', 'Coverage: 92%'],
+        'scan': ['Running SonarQube analysis...', '0 Critical Vulnerabilities found.', 'Code Quality Gate passed.'],
+        'stage': ['Initializing Terraform...', 'Terraform applied successfully...', 'Deploying to staging cluster...'],
+        'deploy': ['Updating K8s deployment "web-app"...', 'Rolling out revision 4...', 'Deployment successful.'],
+        'monitor': ['Configuring Prometheus targets...', 'Verifying Grafana dashboards...', 'Pipeline Complete. App is live.']
+    };
+
     document.getElementById('runPipelineBtn').addEventListener('click', async () => {
         const stages = document.querySelectorAll('.pipe-stage');
         stages.forEach(s => { s.classList.remove('success', 'running', 'error'); });
         
+        logContainer.style.display = 'block';
+        logs.innerHTML = '';
+        statusSpan.innerText = 'Running...';
+        statusSpan.style.color = 'var(--orange)';
+        
         for(let i=0; i<stages.length; i++) {
             stages[i].classList.add('running');
-            await new Promise(r => setTimeout(r, 800)); // simulate work
+            
+            // push logs for this stage
+            const stageId = DevOpsData.pipelineStages[i].id;
+            for(let msg of mockLogsData[stageId]) {
+                logs.innerHTML += `<div>[${new Date().toISOString().split('T')[1].substring(0,8)}] <strong style="color:var(--primary)">[${stageId}]</strong> ${msg}</div>`;
+                logs.scrollTop = logs.scrollHeight;
+                await new Promise(r => setTimeout(r, 400));
+            }
+
             stages[i].classList.remove('running');
             
-            // Random failure simulation on Test or Deploy randomly (10% chance)
-            if((i===2 || i===5) && Math.random() < 0.1) {
+            // Simulate random deploy failure (10% chance) unless it's code/build
+            if(i > 1 && Math.random() < 0.1) {
                 stages[i].classList.add('error');
+                logs.innerHTML += `<div style="color: #ef4444; font-weight:bold;">[ERROR] Pipeline failed at ${DevOpsData.pipelineStages[i].name} stage. Aborting.</div>`;
+                statusSpan.innerText = 'Failed';
+                statusSpan.style.color = '#ef4444';
                 showToast(`Pipeline failed at ${DevOpsData.pipelineStages[i].name}`, 'error');
                 return;
             }
             stages[i].classList.add('success');
         }
+        
+        statusSpan.innerText = 'Success';
+        statusSpan.style.color = 'var(--green)';
         showToast('Pipeline completed successfully!', 'success');
     });
 }
@@ -252,66 +285,174 @@ function initCharts() {
 
 // Docker & Monitoring Simulators
 let logInterval;
+let containerMetricsInterval;
 function initSimulators() {
-    // Docker commands
+    // Docker commands reference
     const cList = document.getElementById('dockerCmdList');
     const cDet = document.getElementById('dockerCmdDetail');
-    DevOpsData.dockerCmds.forEach(cmd => {
-        const li = document.createElement('li');
-        li.innerHTML = `<code>${cmd.cmd.split(' ')[1]}</code>`;
-        li.style.cursor = 'pointer';
-        li.style.padding = '5px';
-        li.addEventListener('click', () => {
-            cDet.innerHTML = `<strong>${cmd.cmd}</strong><br><p>${cmd.desc}</p>`;
+    if(cList) {
+        DevOpsData.dockerCmds.forEach(cmd => {
+            const li = document.createElement('li');
+            li.innerHTML = `<code>${cmd.cmd.split(' ')[1]}</code>`;
+            li.style.cursor = 'pointer';
+            li.style.padding = '5px';
+            li.addEventListener('click', () => cDet.innerHTML = `<strong>${cmd.cmd}</strong><br><p>${cmd.desc}</p>`);
+            cList.appendChild(li);
         });
-        cList.appendChild(li);
-    });
+    }
 
-    // Container Create simulator
+    // Advanced Container Simulator
     let cId = 1;
     const cGrid = document.getElementById('containerGrid');
-    document.getElementById('createContainerBtn').addEventListener('click', () => {
-        if(cGrid.children.length > 5) { showToast('Max containers reached', 'error'); return; }
-        const div = document.createElement('div');
-        div.className = 'c-card';
-        div.innerHTML = `
-            <strong>app_web_${cId}</strong>
-            <p>nginx:alpine</p>
-            <p>Status: <span style="color:var(--green)">Running</span></p>
-            <div class="c-actions">
-                <button class="btn sm secondary stop-btn">Stop</button>
-                <button class="btn sm secondary rm-btn">Rm</button>
-            </div>
-        `;
-        const stopBtn = div.querySelector('.stop-btn');
-        stopBtn.addEventListener('click', () => {
-            div.classList.add('stopped');
-            div.innerHTML = div.innerHTML.replace('Running', 'Stopped').replace('var(--green)', 'var(--text-muted)');
-            showToast('Container stopped');
+    
+    // Live update CPU/RAM for all running containers
+    if(containerMetricsInterval) clearInterval(containerMetricsInterval);
+    containerMetricsInterval = setInterval(() => {
+        document.querySelectorAll('.c-card:not(.stopped)').forEach(c => {
+            const cpuBar = c.querySelector('.cpu-fill');
+            const ramBar = c.querySelector('.ram-fill');
+            if(cpuBar && ramBar) {
+                cpuBar.style.width = Math.floor(Math.random() * 40 + 5) + '%';
+                ramBar.style.width = Math.floor(Math.random() * 60 + 20) + '%';
+            }
         });
-        div.querySelector('.rm-btn').addEventListener('click', () => {
-            div.remove();
-            showToast('Container removed');
-        });
-
-        cGrid.appendChild(div);
-        cId++;
-        showToast('Container started', 'success');
-    });
-
-    // K8s
-    const podStatuses = ['Pending', 'ContainerCreating', 'Running'];
-    let curState = 0;
-    setInterval(() => {
-        const spans = document.querySelectorAll('#podLifecycle span');
-        if(!spans.length) return;
-        spans.forEach(s => s.style.fontWeight = 'normal');
-        spans[curState].style.fontWeight = 'bold';
-        spans[curState].style.transform = 'scale(1.1)';
-        curState = (curState + 1) % spans.length;
     }, 1500);
 
-    // Dummy K8s nodes Draw
+    const createBtn = document.getElementById('createContainerBtn');
+    if(createBtn) {
+        createBtn.addEventListener('click', async () => {
+            if(cGrid.children.length > 7) { showToast('Server out of memory! Stop a container first.', 'error'); return; }
+            
+            const div = document.createElement('div');
+            div.className = 'c-card';
+            div.innerHTML = `
+                <h4>web_api_${cId} <span class="badge">Running</span></h4>
+                <p style="font-size:0.8rem; color:#666;">Image: node:18-alpine<br>Port: 80${cId}->8080</p>
+                <div class="c-metrics">
+                    CPU Usage <div class="bar"><div class="fill cpu-fill" style="width: 5%;"></div></div>
+                    RAM Usage <div class="bar"><div class="fill ram-fill" style="width: 25%; background: #4a8bf5;"></div></div>
+                </div>
+                <div class="c-actions">
+                    <button class="btn sm secondary stop-btn">Stop</button>
+                    <button class="btn sm secondary rm-btn">Rm</button>
+                    <button class="btn sm primary log-btn" style="padding:4px"><span class="material-icons-outlined" style="font-size:14px">terminal</span></button>
+                </div>
+            `;
+
+            const currentCId = cId;
+            const stopBtn = div.querySelector('.stop-btn');
+            stopBtn.addEventListener('click', () => {
+                div.classList.add('stopped');
+                div.querySelector('.badge').innerText = 'Stopped';
+                div.querySelector('.badge').style.background = '#eee';
+                div.querySelector('.badge').style.color = '#666';
+                div.querySelector('.cpu-fill').style.width = '0%';
+                div.querySelector('.ram-fill').style.width = '0%';
+                showToast(`Container web_api_${currentCId} stopped`);
+            });
+            div.querySelector('.rm-btn').addEventListener('click', () => {
+                div.style.transform = 'scale(0)';
+                setTimeout(() => div.remove(), 200);
+                showToast(`Container web_api_${currentCId} removed`);
+            });
+            div.querySelector('.log-btn').addEventListener('click', () => {
+                if(div.classList.contains('stopped')) showToast('Cannot view logs of stopped container.', 'info');
+                else showToast(`[web_api_${currentCId}] Listening on port 8080... OK`, 'info');
+            });
+
+            cGrid.appendChild(div);
+            cId++;
+            showToast('Pulled image node:18-alpine and started container.', 'success');
+        });
+    }
+
+    // Advanced K8s Cluster Simulator
+    const k8sCluster = document.querySelector('.k8s-cluster-visual');
+    if(k8sCluster) {
+        let nodes = [
+            { id: 1, name: 'Worker 1', active: true, pods: 0 },
+            { id: 2, name: 'Worker 2', active: true, pods: 0 },
+            { id: 3, name: 'Worker 3', active: true, pods: 0 }
+        ];
+        let totalPods = 0;
+
+        function renderNodes() {
+            k8sCluster.innerHTML = '';
+            nodes.forEach(n => {
+                const nDiv = document.createElement('div');
+                nDiv.className = `k8s-node-box ${!n.active ? 'offline' : ''}`;
+                nDiv.id = `node-${n.id}`;
+                nDiv.innerHTML = `
+                    <div class="k8s-node-header">
+                        <span class="material-icons-outlined" style="color: ${n.active?'#22c55e':'#ef4444'}">dns</span> 
+                        ${n.name}
+                    </div>
+                    <div class="pod-grid" id="pod-grid-${n.id}"></div>
+                `;
+                k8sCluster.appendChild(nDiv);
+            });
+            // Re-render exact number of pods across active nodes
+            let podsToDistribute = totalPods;
+            const activeNodes = nodes.filter(n=>n.active);
+            if(activeNodes.length > 0) {
+                while(podsToDistribute > 0) {
+                    const pickedNode = activeNodes[podsToDistribute % activeNodes.length];
+                    const pg = document.getElementById(`pod-grid-${pickedNode.id}`);
+                    pg.innerHTML += `<div class="k8s-pod"><span class="material-icons-outlined" style="font-size:14px">view_in_ar</span> Pod</div>`;
+                    podsToDistribute--;
+                }
+            }
+        }
+        
+        renderNodes();
+
+        document.getElementById('k8sScaleUpBtn').addEventListener('click', async () => {
+            if(nodes.filter(n=>n.active).length === 0) { showToast('No active nodes to schedule pods!', 'error'); return; }
+            if(totalPods > 15) { showToast('HPA Max limit reached (15)', 'error'); return; }
+            
+            showToast('HPA Triggered: Scaling Up...', 'info');
+            totalPods++;
+            renderNodes();
+            // Highlight the newest pod as pending then running
+            const activeNodes = nodes.filter(n=>n.active);
+            const targetNodeId = activeNodes[totalPods % activeNodes.length].id;
+            const lastPod = document.getElementById(`pod-grid-${targetNodeId}`).lastElementChild;
+            if(lastPod) {
+                lastPod.classList.add('pending');
+                setTimeout(() => lastPod.classList.remove('pending'), 1000);
+            }
+        });
+
+        document.getElementById('k8sScaleDownBtn').addEventListener('click', () => {
+            if(totalPods > 0) {
+                totalPods--;
+                showToast('HPA Triggered: Scaling Down...', 'info');
+                renderNodes();
+            }
+        });
+
+        document.getElementById('k8sKillNodeBtn').addEventListener('click', () => {
+            const activeNodes = nodes.filter(n=>n.active);
+            if(activeNodes.length === 0) {
+                // revive all
+                Object.assign(nodes, nodes.map(n => ({...n, active: true})));
+                showToast('Control Plane revived all nodes.', 'success');
+                document.getElementById('k8sKillNodeBtn').innerText = 'Kill Random Node';
+                document.getElementById('k8sKillNodeBtn').style.color = 'var(--red)';
+            } else {
+                const target = activeNodes[Math.floor(Math.random() * activeNodes.length)];
+                target.active = false;
+                showToast(`Node ${target.name} crashed! Pods rescheduling...`, 'error');
+                if(nodes.filter(n=>n.active).length === 0) {
+                    document.getElementById('k8sKillNodeBtn').innerText = 'Revive Nodes';
+                    document.getElementById('k8sKillNodeBtn').style.color = 'var(--green)';
+                }
+            }
+            renderNodes();
+        });
+    }
+
+    // Dummy architecture canvas draw 
     const k8sCanvas = document.getElementById('k8sCanvas');
     if(k8sCanvas) {
         const c2 = k8sCanvas.getContext('2d');
