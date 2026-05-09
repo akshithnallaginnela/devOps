@@ -23,5 +23,62 @@ const DevOpsData = {
         { id: 'r6', title: 'Kubernetes', desc: 'Container orchestration at scale.', tags: ['K8s', 'Pods', 'Helm'], time: '3 Weeks' },
         { id: 'r7', title: 'Infrastructure as Code', desc: 'Provision cloud resources via code.', tags: ['Terraform', 'Ansible'], time: '2 Weeks' },
         { id: 'r8', title: 'Monitoring & Logging', desc: 'Observe system health.', tags: ['Prometheus', 'Grafana', 'ELK'], time: '1 Week' }
+    ],
+    learningTracks: [
+        {
+            id: 'foundation',
+            title: 'Foundation Track',
+            subtitle: 'Start from zero and build core confidence',
+            focus: ['Linux Shell', 'Git Basics', 'Docker Basics'],
+            weeklyGoal: 5
+        },
+        {
+            id: 'platform',
+            title: 'Platform Engineer Track',
+            subtitle: 'Automate infrastructure and deployments',
+            focus: ['CI/CD Pipelines', 'Kubernetes', 'Terraform'],
+            weeklyGoal: 7
+        },
+        {
+            id: 'sre',
+            title: 'SRE Track',
+            subtitle: 'Reliability, observability, and incident response',
+            focus: ['Monitoring', 'SLIs/SLOs', 'Runbooks'],
+            weeklyGoal: 6
+        }
+    ],
+    challenges: [
+        {
+            id: 'linux-basics',
+            title: 'Linux Warm-up',
+            difficulty: 'Beginner',
+            instructions: 'Run mkdir projects, cd projects, echo "hello devops" > note.txt, then cat note.txt',
+            requiredCommands: ['mkdir', 'cd', 'echo', 'cat']
+        },
+        {
+            id: 'git-fastlane',
+            title: 'Git Quick Cycle',
+            difficulty: 'Beginner',
+            instructions: 'Open Version Control and review commit → branch strategy notes.',
+            requiredActions: ['visit-git']
+        },
+        {
+            id: 'monitoring-watch',
+            title: 'Observe Live Metrics',
+            difficulty: 'Intermediate',
+            instructions: 'Open Monitoring, keep logs running, and identify at least one WARN/ERROR event.',
+            requiredActions: ['visit-monitoring', 'observe-log-alert']
+        }
+    ],
+    conceptGlossary: [
+        { keyword: 'ci', label: 'Continuous Integration', target: 'cicd' },
+        { keyword: 'cd', label: 'Continuous Delivery / Deployment', target: 'cicd' },
+        { keyword: 'docker', label: 'Docker Containers', target: 'docker' },
+        { keyword: 'kubernetes', label: 'Kubernetes', target: 'k8s' },
+        { keyword: 'terraform', label: 'Infrastructure as Code', target: 'iac' },
+        { keyword: 'monitoring', label: 'Monitoring & Logs', target: 'monitoring' },
+        { keyword: 'git', label: 'Version Control', target: 'git' },
+        { keyword: 'linux', label: 'Hands-on Labs', target: 'labs' },
+        { keyword: 'roadmap', label: 'Learning Roadmap', target: 'roadmap' }
     ]
 };
